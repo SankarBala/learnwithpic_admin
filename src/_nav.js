@@ -7,8 +7,8 @@ import {
   cilPencil,
   cilSpeedometer,
   cilStar,
-} from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+} from '@coreui/icons';
+import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
 
 const _nav = [
   {
@@ -86,7 +86,7 @@ export default _nav
 //     text: 'NEW',
 //   },
 // },
-
+ 
 // {
 //   component: CNavGroup,
 //   name: 'Pages',
