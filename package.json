@@ -33,7 +33,9 @@
     "react-router-dom": "^6.3.0",
     "react-select": "^5.7.0",
     "redux": "4.2.0",
-    "simplebar-react": "^2.4.1"
+    "simplebar-react": "^2.4.1",
+    "sweetalert2": "^11.6.15",
+    "sweetalert2-react-content": "^5.0.7"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
