@@ -50,14 +50,17 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
 // const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
-const Categories = React.lazy(() => import('./pages/categories/index'));
-const CreateCategory = React.lazy(() => import('./pages/categories/create'));
+const Categories = React.lazy(() => import('./pages/categories'));
+const Tags = React.lazy(() => import('./pages/tags'));
+const Test = React.lazy(() => import('./pages/Test.jsx'));
+
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/category', name: 'Category', element: Categories },
-  { path: '/category/create', name: 'Create new category', element: CreateCategory },
+  { path: '/tags', name: 'Tag', element: Tags },
+  { path: '/test', name: 'Test', element: Test },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

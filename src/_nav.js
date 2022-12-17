@@ -47,7 +47,7 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Tags',
-    to: '/tag',
+    to: '/tags',
     icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />
   },
   {
