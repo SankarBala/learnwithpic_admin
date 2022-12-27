@@ -6,6 +6,7 @@ const Posts = React.lazy(() => import('./pages/posts/index'));
 const Categories = React.lazy(() => import('./pages/categories'));
 const Tags = React.lazy(() => import('./pages/tags'));
 const Test = React.lazy(() => import('./pages/Test.jsx'));
+const FileManager = React.lazy(()=>import('./pages/filemanager/FileManager'));
 
 
 const routes = [
@@ -16,6 +17,7 @@ const routes = [
   { path: '/category', name: 'Category', element: Categories },
   { path: '/tags', name: 'Tag', element: Tags },
   { path: '/test', name: 'Test', element: Test },
+  { path: '/files', name: 'FileManager', element: FileManager },
 ]
 
 export default routes

@@ -55,6 +55,12 @@ const _nav = [
     name: 'Extras',
   },
   {
+    component: CNavItem,
+    name: 'FileManager',
+    to: '/files',
+    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />
+  },
+  {
     component: CNavGroup,
     name: 'Pages',
     icon: <CIcon icon={cilStar} customClassName="nav-icon" />,

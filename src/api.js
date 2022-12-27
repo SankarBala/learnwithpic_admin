@@ -1,7 +1,7 @@
 import host from './config';
 import axios from 'axios'
 
-axios.defaults.baseURL = host;
+axios.defaults.baseURL = `${host}/api`;
 // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
