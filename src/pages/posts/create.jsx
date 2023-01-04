@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     CButton, CCard, CCardBody,
     CCardHeader,
@@ -6,7 +6,6 @@ import {
     CContainer,
     CForm,
     CFormInput,
-    CFormTextarea,
     CNav,
     CNavItem,
     CNavLink,
@@ -43,23 +42,24 @@ const Creator = () => {
         tags: [],
         image: ""
     });
-    const [steps, setSteps] = useState([{ id: new Date().getTime(), title: "", content: "" }]);
+    const [steps, setSteps] = useState([{ id: `step_id_${new Date().getTime()}`, title: "" }]);
     const [activeStep, setActiveStep] = useState(steps[0].id);
     const [errors, setErrors] = useState({});
     const [updatedAt, setUpdatedAt] = useState();
+    const [posting, setPosting] = useState(false);
 
     useEffect(() => {
         api.get(`category`).then(res => setCategories(res.data)).catch((err) => setErrors(err.response.data.errors));
         api.get(`tag`).then(res => setTags(res.data)).catch(err => setErrors(err.response.data.errors));
     }, [updatedAt]);
 
+
     const addNewStep = () => {
         setSteps([
             ...steps,
             {
-                id: new Date().getTime(),
-                title: "",
-                content: "",
+                id: `step_id_${new Date().getTime()}`,
+                title: ""
             },
         ]);
     };
@@ -72,32 +72,32 @@ const Creator = () => {
         );
     };
 
-    const savePost = () => {
-        api.post(`post`, {
-            ...post,
-            tags: post.tags.map((tag) => tag.label)
-        }).then(res => {
 
-            console.log(res.data);
+    const savePost = (e) => {
+        setPosting(true);
+        const postablesteps = steps.map(step => ({ title: step.title, content: CKEDITOR.instances[`content_of_${step.id}`].getData() }));
 
-            // const MySwal = withReactContent(Swal);
-            // MySwal.fire({
-            //     title: <p>{res.data.message}</p>,
-            // });
-            // setPost({
-            //     title: "",
-            //     slug: "",
-            //     categories: [],
-            //     tags: [],
-            //     image: ""
-            // });
-            // setErrors({});
-            // setUpdatedAt(Date.now());
+        api.post(`post`, { ...post, steps: postablesteps, tags: post.tags.map((tag) => tag.label) }).then(res => {
+
+            const MySwal = withReactContent(Swal);
+            MySwal.fire({
+                title: <p>{res.data.message}</p>,
+            });
+            setPost({
+                title: "",
+                slug: "",
+                categories: [],
+                tags: [],
+                image: ""
+            });
+            setPosting(false);
+            setErrors({});
+            setUpdatedAt(Date.now());
         }).catch(err => {
-            setErrors(err.response.data.errors);
-            console.log(err);
+            setPosting(false);
+            setErrors({ ...err.response.data.errors });
+            // console.log(err);
         });
-
     }
 
 
@@ -113,6 +113,7 @@ const Creator = () => {
                                 name="title"
                                 className={errors.title ? "is-invalid" : ""}
                                 value={post.title}
+                                onFocus={(e) => setErrors({ ...errors, [e.target.name]: "" })}
                                 onChange={e => setPost({ ...post, title: e.target.value })}
                                 onBlur={() => { post.slug == "" ? setPost({ ...post, slug: slugify(post.title.slice(0, 80)) }) : "" }}
                             />
@@ -125,6 +126,7 @@ const Creator = () => {
                                 name="slug"
                                 className={errors.slug ? "is-invalid" : ""}
                                 value={post.slug}
+                                onFocus={(e) => setErrors({ ...errors, [e.target.name]: "" })}
                                 onChange={e => setPost({ ...post, slug: e.target.value })}
                             />
                             <div className="invalid-feedback">{errors.slug}</div>
@@ -176,27 +178,28 @@ const Creator = () => {
                                             <CFormInput
                                                 type="text"
                                                 name="step-title"
-                                                className={errors.slug ? "is-invalid" : ""}
-                                                value=""
-                                                onChange=""
+                                                placeholder={`Step ${index + 1}`}
+                                                value={step.title}
+                                                onChange={e => setSteps(steps.map(step2 => step2.id == step.id ? { ...step2, title: e.target.value } : step2))}
                                             />
                                         </CRow>
                                         <br />
                                         <CRow>
 
                                             <CKEditor
-                                                initData={""}
-                                                onInstanceReady={() => { "" }}
+                                                initData={steps.length}
+                                                // onInstanceReady={(e) => { // }}
                                                 config={editorConfig}
                                                 editorUrl={editorConfig.editorUrl}
-                                                // onChange={(e) => setSteps({ ...steps, [step.content]: e.editor.getData() })}
+                                                name={`content_of_${step.id}`}
                                             />
-                                        </CRow>
-                                    </CTabPane>
+                                        </CRow>  </CTabPane>
                                 );
                             })}
                         </CTabContent>
                     </CCol>
+
+
                     <CCol md={4}>
                         <CCard>
                             <CCardHeader>Feature Image</CCardHeader>
@@ -254,7 +257,7 @@ const Creator = () => {
 
             <CRow>
                 <CCol align="end" className="mb-2">
-                    <CButton color="primary" onClick={savePost}>Save</CButton>
+                    <CButton color="primary" disabled={posting} onClick={savePost}>Save</CButton>
                 </CCol>
             </CRow>
         </>
