@@ -44,7 +44,7 @@ const Creator = () => {
     });
     const [steps, setSteps] = useState([{ id: `step_id_${new Date().getTime()}`, title: "" }]);
     const [activeStep, setActiveStep] = useState(steps[0].id);
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({ title: "", slug: "" });
     const [updatedAt, setUpdatedAt] = useState();
     const [posting, setPosting] = useState(false);
 
@@ -74,6 +74,18 @@ const Creator = () => {
 
 
     const savePost = (e) => {
+
+        if (post.title == "") {
+            setErrors({ ...errors, title: "Title field is requred" });
+        }
+        if (post.slug == "") {
+            setErrors({ ...errors, slug: "Slug field is requred" });
+        }
+
+        if (post.title == "" || post.slug == "") {
+            return;
+        }
+
         setPosting(true);
         const postablesteps = steps.map(step => ({ title: step.title, content: CKEDITOR.instances[`content_of_${step.id}`].getData() }));
 

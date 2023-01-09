@@ -1,0 +1,395 @@
+.p-multiselect {
+  background: #ffffff;
+  border: 1px solid #a6a6a6;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s,
+    box-shadow 0.2s;
+  border-radius: 3px;
+}
+.p-multiselect:not(.p-disabled):hover {
+  border-color: #212121;
+}
+.p-multiselect:not(.p-disabled).p-focus {
+  outline: 0 none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 0.2rem #8dcdff;
+  border-color: #007ad9;
+}
+.p-multiselect.p-multiselect-clearable .p-multiselect-label {
+  padding-right: 1.429rem;
+}
+.p-multiselect .p-multiselect-label {
+  padding: 0.429rem 0.429rem;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s,
+    box-shadow 0.2s;
+}
+.p-multiselect .p-multiselect-label.p-placeholder {
+  color: #666666;
+}
+.p-multiselect.p-multiselect-chip .p-multiselect-token {
+  padding: 0.2145rem 0.429rem;
+  margin-right: 0.5rem;
+  background: #007ad9;
+  color: #ffffff;
+  border-radius: 3px;
+}
+.p-multiselect.p-multiselect-chip
+  .p-multiselect-token
+  .p-multiselect-token-icon {
+  margin-left: 0.5rem;
+}
+.p-multiselect .p-multiselect-trigger {
+  background: transparent;
+  color: #848484;
+  width: 2.357rem;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.p-multiselect .p-multiselect-clear-icon {
+  color: #848484;
+  right: 2.357rem;
+}
+.p-multiselect.p-invalid.p-component {
+  border-color: #a80000;
+}
+
+.p-inputwrapper-filled.p-multiselect.p-multiselect-chip .p-multiselect-label {
+  padding: 0.2145rem 0.429rem;
+}
+.p-inputwrapper-filled.p-multiselect.p-multiselect-chip
+  .p-multiselect-label.p-multiselect-items-label {
+  padding: 0.429rem 0.429rem;
+}
+.p-inputwrapper-filled.p-multiselect.p-multiselect-clearable
+  .p-multiselect-label {
+  padding-right: 1.429rem;
+}
+
+.p-multiselect-panel {
+  background: #ffffff;
+  color: #333333;
+  border: 1px solid #c8c8c8;
+  border-radius: 3px;
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+}
+.p-multiselect-panel .p-multiselect-header {
+  padding: 0.429rem 0.857rem;
+  border-bottom: 1px solid #eaeaea;
+  color: #333333;
+  background: #ffffff;
+  margin: 0;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+}
+.p-multiselect-panel .p-multiselect-header .p-multiselect-filter-container {
+  margin: 0 0.5rem;
+}
+.p-multiselect-panel
+  .p-multiselect-header
+  .p-multiselect-filter-container
+  .p-inputtext {
+  padding-right: 1.429rem;
+}
+.p-multiselect-panel
+  .p-multiselect-header
+  .p-multiselect-filter-container
+  .p-multiselect-filter-icon {
+  right: 0.429rem;
+  color: #848484;
+}
+.p-multiselect-panel .p-multiselect-header .p-multiselect-close {
+  width: 2rem;
+  height: 2rem;
+  color: #a6a6a6;
+  border: 0 none;
+  background: transparent;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.p-multiselect-panel .p-multiselect-header .p-multiselect-close:enabled:hover {
+  color: #007ad9;
+  border-color: transparent;
+  background: transparent;
+}
+.p-multiselect-panel .p-multiselect-header .p-multiselect-close:focus {
+  outline: 0 none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 0.2rem #8dcdff;
+}
+.p-multiselect-panel .p-multiselect-items {
+  padding: 0;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+  margin: 0;
+  padding: 0.429rem 0.857rem;
+  border: 0 none;
+  color: #333333;
+  background: transparent;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  border-radius: 0;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight {
+  color: #ffffff;
+  background: #007ad9;
+}
+.p-multiselect-panel
+  .p-multiselect-items
+  .p-multiselect-item:not(.p-highlight):not(.p-disabled):hover {
+  color: #333333;
+  background: #eaeaea;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item:focus {
+  outline: 0 none;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 0.15rem #8dcdff;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item .p-checkbox {
+  margin-right: 0.5rem;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group {
+  margin: 0;
+  padding: 0.857rem;
+  color: #333333;
+  background: #f4f4f4;
+  font-weight: 700;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-empty-message {
+  padding: 0.429rem 0.857rem;
+  color: #333333;
+  background: transparent;
+}
+
+.p-input-filled .p-multiselect {
+  background: #f4f4f4;
+}
+.p-input-filled .p-multiselect:not(.p-disabled):hover {
+  background-color: #f4f4f4;
+}
+.p-input-filled .p-multiselect:not(.p-disabled).p-focus {
+  background-color: #f4f4f4;
+}
+
+/* ------------------------------ */
+
+.p-multiselect {
+  display: inline-flex;
+  position: relative;
+  user-select: none;
+}
+
+.p-multiselect-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.p-multiselect-label-container {
+  overflow: hidden;
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+
+.p-multiselect-label {
+  display: block;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p-multiselect-label-empty {
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.p-multiselect-token {
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.p-multiselect-token-icon {
+  cursor: pointer;
+}
+
+.p-multiselect .p-multiselect-panel {
+  min-width: 100%;
+}
+
+.p-multiselect-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.p-multiselect-inline.p-multiselect-panel {
+  border: none;
+  position: initial;
+  background: none;
+  box-shadow: none;
+}
+
+.p-multiselect-inline.p-multiselect-panel .p-multiselect-items {
+  padding: 0;
+}
+
+.p-multiselect-flex.p-multiselect-panel .p-multiselect-items {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.p-multiselect-items-wrapper {
+  overflow: auto;
+}
+
+.p-multiselect-items {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.p-multiselect-item {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.p-multiselect-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.p-multiselect-filter-container {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.p-multiselect-filter-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.5rem;
+}
+
+.p-multiselect-filter-container .p-inputtext {
+  width: 100%;
+}
+
+.p-multiselect-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  margin-left: auto;
+}
+
+.p-multiselect-clear-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.5rem;
+}
+
+.p-fluid .p-multiselect {
+  display: flex;
+}
+
+/* -------------- */
+
+.p-checkbox {
+  width: 20px;
+  height: 20px;
+}
+.p-checkbox .p-checkbox-box {
+  border: 1px solid #a6a6a6;
+  background: #ffffff;
+  width: 20px;
+  height: 20px;
+  color: #333333;
+  border-radius: 3px;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s,
+    box-shadow 0.2s;
+}
+.p-checkbox .p-checkbox-box .p-checkbox-icon {
+  transition-duration: 0.2s;
+  color: #ffffff;
+  font-size: 14px;
+}
+.p-checkbox .p-checkbox-box.p-highlight {
+  border-color: #007ad9;
+  background: #007ad9;
+}
+.p-checkbox .p-checkbox-box.p-highlight:not(.p-disabled):hover {
+  border-color: #005b9f;
+  background: #005b9f;
+  color: #ffffff;
+}
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:hover {
+  border-color: #212121;
+}
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-focus {
+  outline: 0 none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 0.2rem #8dcdff;
+  border-color: #007ad9;
+}
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover {
+  border-color: #005b9f;
+  background: #005b9f;
+  color: #ffffff;
+}
+.p-checkbox.p-invalid > .p-checkbox-box {
+  border-color: #a80000;
+}
+
+.p-input-filled .p-checkbox .p-checkbox-box {
+  background-color: #f4f4f4;
+}
+.p-input-filled .p-checkbox .p-checkbox-box.p-highlight {
+  background: #007ad9;
+}
+.p-input-filled .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:hover {
+  background-color: #f4f4f4;
+}
+.p-input-filled
+  .p-checkbox:not(.p-checkbox-disabled)
+  .p-checkbox-box.p-highlight:hover {
+  background: #005b9f;
+}
+
+.p-highlight .p-checkbox .p-checkbox-box {
+  border-color: #ffffff;
+}
+
+.p-checkbox {
+  display: inline-flex;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+}
+
+.p-checkbox.p-checkbox-disabled {
+  cursor: auto;
+}
+
+.p-checkbox-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.p-treetable-toggler + .p-checkbox {
+  vertical-align: middle;
+}
+
+.p-treetable-toggler + .p-checkbox + span {
+  vertical-align: middle;
+}
