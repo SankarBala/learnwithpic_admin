@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import * as RRD from 'react-router-dom';
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   CPagination, CPaginationItem, CTable,
   CTableBody, CTableDataCell, CTableHead, CTableHeaderCell,
-  CTableRow, CFormCheck, CFormSelect, CButton, CInputGroup, CContainer, CRow, CCol
+  CTableRow, CFormCheck, CFormSelect, CButton, CInputGroup, CRow, CCol, CFormInput
 } from "@coreui/react";
 import api from "src/api";
-import CIcon from "@coreui/icons-react";
-import { cilBell, cilCommentSquare } from "@coreui/icons";
-import Histo from './histo';
 
 const Posts = () => {
 
@@ -17,29 +13,20 @@ const Posts = () => {
   const [filterableMonths, setFilterableMonths] = useState([]);
   const [categories, setCategories] = useState([]);
   const [postSelected, setPostSelected] = useState(new Set());
-  const [updatedAt, setUpdatedAt] = useState();
+  const [updatedAt, setUpdatedAt] = useState(new Date().getTime());
   const [pagination, setPagination] = useState({
-    currentPage: "",
-    perPage: "",
-    totalPage: "",
+    page: 1,
+    perPage: 1,
+    total: 1,
     links: []
   });
+  const [filter, setFilter] = useState({});
   const actionToBeExecute = useRef();
-  const filteredCategory = useRef();
-  const filteredMonth = useRef();
-  // const history = RRD.withRouter();
+  const visit = useNavigate();
+  const location = useLocation();
+
 
   useEffect(() => {
-    api.get(`post`).then(res => {
-      setPosts(res.data.data);
-      setPagination({
-        currentPage: res.data.current_page,
-        perPage: res.data.per_page,
-        totalPage: res.data.total,
-        links: res.data.links
-      })
-    }).catch(err => console.log(err.response.data));
-
     api.get(`post/months`).then(res => {
       setFilterableMonths(res.data.months);
     }).catch(err => console.log(err.response.data));
@@ -47,29 +34,82 @@ const Posts = () => {
     api.get(`category`).then(res => {
       setCategories(res.data);
     }).catch(err => console.log(err.response.data));
+    console.log("m&c");
+
+    if (location.search != "") {
+      const queryItems = location.search.replace("?", "").replace("%20", " ").split("&").map(pair => {
+        const [key, value] = pair.split("=");
+        return { [key]: value }
+      });
+      setFilter(queryItems.reduce((acc, obj) => Object.assign(acc, obj), {}));
+    }
+  }, []);
 
 
+  useEffect(() => {
+    setPostSelected(new Set([]));
+    actionToBeExecute.current.value = "";
+    const link = `${location.pathname}${location.search}`;
+    api.get(link).then(res => {
+      setPosts(res.data.data);
+      setPagination({
+        page: res.data.current_page,
+        perPage: res.data.per_page,
+        total: res.data.total,
+        links: res.data.links
+      })
+    }).catch(err => console.log(err.response.data));
+    console.log(`${location.pathname}${location.search}`);
   }, [updatedAt]);
 
 
-  // useEffect(() => {
-  //   setFilterableMonths([...new Set(posts.map(object => {
-  //     const date = new Date(object.created_at);
-  //     const month = date.toLocaleString('default', { month: 'long' });
-  //     const year = date.getFullYear();
-  //     return `${month} ${year}`;
-  //   }))]);
-  // }, [posts]);
-
-
-
-  const filterPost = () => {
-    const month = filteredMonth.current.value;
-    const category = filteredCategory.current.value;
-
-    //
+  const showPostType = (e) => {
+    const { name, value } = e.target;
+    if (name == 'reset') {
+      setFilter({});
+      visit(`/post`);
+    } else {
+      setFilter({ [name]: value });
+      visit(`/post?${name}=${value}`);
+    }
+    setUpdatedAt(new Date().getTime());
   }
 
+
+  const genarateUrl = () => {
+    const queryString = Object.entries(filter).map(([key, value]) => `${key}=${value}`).join('&');
+    const query = queryString.replace(/page=\d+&?/gi, '');
+    visit(`/post?${query}`);
+    setUpdatedAt(new Date().getTime());
+  }
+
+
+  const filterize = (e) => {
+    const { name, value } = e.target;
+    if (value == "") {
+      const newFilter = filter;
+      delete newFilter[name];
+      setFilter({ ...newFilter });
+    } else {
+      setFilter({ ...filter, [name]: value });
+    }
+  }
+
+
+  const paginate = (page) => {
+    if (location.search !== "") {
+      const queryString = Object.entries(filter).map(([key, value]) => `${key}=${value}`).join('&');
+      const query = queryString.replace(/page=\d+&?/gi, "");
+      if (query !== "") {
+        visit(`/post?page=${page}&${query}`);
+      } else {
+        visit(`/post?page=${page}`);
+      }
+    } else {
+      visit(`/post?page=${page}`);
+    }
+    setUpdatedAt(new Date().getTime());
+  }
 
 
   const handlePostSelection = (e) => {
@@ -77,7 +117,6 @@ const Posts = () => {
     postSelected.has(value) ? postSelected.delete(value) : postSelected.add(value);
     setPostSelected(new Set(postSelected));
   }
-
 
   const executableOptions = ['publish', 'draft', 'delete'];
 
@@ -92,47 +131,60 @@ const Posts = () => {
     }
   }
 
-
+  const deleteSinglePost = (postId) => {
+    api.delete(`post/${postId}`)
+      .then(res => setUpdatedAt(Date.now()))
+      .catch(err => console.log(err));
+  }
 
   return (
     <>
-      <CContainer>
-        <CRow>
-          <CCol md={{ span: 3 }}>
-            <CInputGroup>
-              <CFormSelect aria-label="Default select" ref={actionToBeExecute}>
-                <option value="">Select an action</option>
-                {executableOptions.map((option, index) => <option key={index} value={option}> {option.toUpperCase()}</option>)}
-              </CFormSelect>
-              <CButton onClick={() => selectedPostActions()} >
-                Apply
-              </CButton>
-            </CInputGroup>
-          </CCol>
-          <CCol md={{ span: 3 }}>
-            <CFormSelect aria-label="Default select" ref={filteredMonth}>
-              <option value="">Select a month</option>
-              {filterableMonths.map((month, index) => <option key={index} value={month}>{month}</option>)}
+      <CRow>
+        <ul className="mb-1">
+          <CButton size="sm" variant="ghost" color={`${(!("author" in filter) && !("status" in filter)) && "primary"}`} name="reset" onClick={(e) => showPostType(e)} > All </CButton>|
+          <CButton size="sm" variant="ghost" color={`${filter.author == "mine" && "primary"}`} name="author" value="mine" onClick={(e) => showPostType(e)} > Mine </CButton>|
+          <CButton size="sm" variant="ghost" color={`${filter.status == "published" && "primary"}`} name="status" value="published" onClick={(e) => showPostType(e)} > Published </CButton>|
+          <CButton size="sm" variant="ghost" color={`${filter.status == "draft" && "primary"}`} name="status" value="draft" onClick={(e) => showPostType(e)} > Draft </CButton>
+        </ul>
+      </CRow>
+      <CRow className="mb-3">
+        <CCol md={{ span: 3 }}>
+          <CInputGroup>
+            <CFormSelect aria-label="Select Action" ref={actionToBeExecute}>
+              <option value="">Select an action</option>
+              {executableOptions.map((option, index) => <option key={index} value={option}> {option.toUpperCase()}</option>)}
             </CFormSelect>
-          </CCol>
-          <CCol md={{ span: 2 }}>
-            <CFormSelect aria-label="Default select" ref={filteredCategory}>
-              <option value="">All Categories</option>
-              {categories.map((category, index) => <option key={index} value={category.slug}>{category.name}</option>)}
-            </CFormSelect>
-          </CCol>
-          <CCol md={{ span: 1 }}>
-            <CButton onClick={filterPost}>Filter</CButton>
-          </CCol>
-        </CRow>
-      </CContainer>
-      <hr />
+            <CButton onClick={() => selectedPostActions()} >
+              Apply
+            </CButton>
+          </CInputGroup>
+        </CCol>
+        <CCol md={{ span: 3 }}>
+          <CFormSelect aria-label="Select Month" name="month" value={filter.month || ""} onChange={(e) => filterize(e)}>
+            <option value="">Select a month</option>
+            {filterableMonths.map((month, index) => <option key={index} value={month}>{month}</option>)}
+          </CFormSelect>
+        </CCol>
+        <CCol md={{ span: 2 }}>
+          <CFormSelect aria-label="Select Category" name="category" value={filter.category || ""} onChange={(e) => filterize(e)}>
+            <option value="">All Categories</option>
+            {categories.map((category, index) => <option key={index} value={category.slug}>{category.name}</option>)}
+          </CFormSelect>
+        </CCol>
+        <CCol md={{ span: 3 }}>
+          <CFormInput placeholder="Search here..." name="search" value={filter.search || ""} onChange={(e) => filterize(e)} />
+        </CCol>
+        <CCol md={{ span: 1 }}>
+          <CButton onClick={genarateUrl}>Filter</CButton>
+        </CCol>
+      </CRow>
       <CTable bordered>
         <CTableHead color="dark">
           <CTableRow>
             <CTableHeaderCell scope="col">
               <CFormCheck
-                checked={postSelected.size == posts.length}
+                checked={postSelected.size == posts.length && posts.length >= 1}
+                disabled={posts.length < 1}
                 onChange={(e) => e.target.checked ? setPostSelected(new Set(posts.map(post => post.id))) : setPostSelected(new Set([]))}
               />
             </CTableHeaderCell>
@@ -156,13 +208,19 @@ const Posts = () => {
                   />
                 </CTableHeaderCell>
                 <CTableDataCell>
-                  <div className="mb-2">{post.title}</div>
+                  <div className="mb-2">{post.title}-{post.status}-{post.id}</div>
                   <div>
-                    <Link className="text-primary text-decoration-none">View</Link>
+                    <CButton size="sm" color="link" className="text-primary text-decoration-none p-0 m-0"
+                      onClick={() => { visit("") }}
+                    >View</CButton>
                     <span className="mx-2">|</span>
-                    <Link className="text-warning text-decoration-none">Edit</Link>
+                    <CButton size="sm" color="link" className="text-warning text-decoration-none p-0 m-0"
+                      onClick={() => { visit(`/post/edit/${post.slug}`) }}
+                    >Edit</CButton>
                     <span className="mx-2">|</span>
-                    <Link className="text-danger text-decoration-none">Delete</Link>
+                    <CButton size="sm" color="link" className="text-danger text-decoration-none p-0 m-0"
+                      onClick={() => { deleteSinglePost(post.slug) }}
+                    >Delete</CButton>
                   </div>
                 </CTableDataCell>
                 <CTableDataCell>
@@ -191,19 +249,15 @@ const Posts = () => {
         </CTableBody>
       </CTable>
 
-      <nav aria-label="Pagination">
-        <ul className="pagination justify-content-end">
-          {pagination.links.map((link, index) => {
-            return (
-              <li key={index} className={`page-item ${link.active && "active"} ${link.url == null && "disabled"}`}>
-                <Link className="page-link" to={link.url}>{link.label}</Link>
-              </li>
-            )
-          })}
-        </ul>
-        {/* {console.log(history)} */}
-      </nav>
-      <Histo />
+      <CPagination align="end" aria-label="Page">
+        <CPaginationItem style={{ cursor: "pointer" }} disabled={pagination.page == 1} onClick={() => paginate(pagination.page - 1)}>Previous</CPaginationItem>
+        {[...Array(Math.ceil(pagination.total / pagination.perPage))].map((item, index) => {
+          return (
+            <CPaginationItem style={{ cursor: "pointer" }} key={index} active={pagination.page == index + 1} className="" onClick={() => paginate(index + 1)}>{index + 1}</CPaginationItem>
+          )
+        })}
+        <CPaginationItem style={{ cursor: "pointer" }} disabled={pagination.page == (Math.ceil(pagination.total / pagination.perPage))} onClick={() => paginate(pagination.page + 1)}>Next</CPaginationItem>
+      </CPagination>
     </>
   )
 };
