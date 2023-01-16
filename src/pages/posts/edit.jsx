@@ -30,6 +30,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { CKEditor } from 'ckeditor4-react';
 import editorConfig from "src/assets/ckeditor/standard/config";
+import { useParams } from "react-router-dom";
 
 
 const Editor = () => {
@@ -42,16 +43,29 @@ const Editor = () => {
         tags: [],
         image: ""
     });
-    const [steps, setSteps] = useState([{ id: `step_id_${new Date().getTime()}`, title: "" }]);
-    const [activeStep, setActiveStep] = useState(steps[0].id);
+    // const [steps, setSteps] = useState([{ id: `step_id_${new Date().getTime()}`, title: "" }]);
+    const [steps, setSteps] = useState([]);
+    const [activeStep, setActiveStep] = useState(steps[0]?.id);
     const [errors, setErrors] = useState({ title: "", slug: "" });
     const [updatedAt, setUpdatedAt] = useState();
     const [posting, setPosting] = useState(false);
+    const params = useParams();
 
     useEffect(() => {
-        api.get(`category`).then(res => setCategories(res.data)).catch((err) => setErrors(err.response.data.errors));
-        api.get(`tag`).then(res => setTags(res.data)).catch(err => setErrors(err.response.data.errors));
+        api.get(`just-categories`).then(res => setCategories(res.data)).catch((err) => setErrors(err.response.data.errors));
+        api.get(`just-tags`).then(res => setTags(res.data)).catch(err => setErrors(err.response.data.errors));
     }, [updatedAt]);
+
+    useEffect(() => {
+        api.get(`post/${params.slug}`)
+            .then(res => {
+                setPost({ ...post, ...res.data, categories: res.data.categories.map(cat => cat.id) });
+                setSteps([...res.data?.steps]);
+                setActiveStep(res.data?.steps[0]?.id);
+                console.log(res.data);
+            }).catch(err => console.log(err));
+    }, []);
+
 
 
     const addNewStep = () => {
@@ -87,24 +101,26 @@ const Editor = () => {
         }
 
         setPosting(true);
-        const postablesteps = steps.map(step => ({ title: step.title, content: CKEDITOR.instances[`content_of_${step.id}`].getData() }));
+        const postablesteps = steps.map(step => ({ title: step.title, content: CKEDITOR.instances[`content_of_step_id_${step.id}`].getData() }));
 
-        api.post(`post`, { ...post, steps: postablesteps, tags: post.tags.map((tag) => tag.label) }).then(res => {
+        api.put(`post/${params.slug}`, { ...post, steps: postablesteps }).then(res => {
 
-            const MySwal = withReactContent(Swal);
-            MySwal.fire({
-                title: <p>{res.data.message}</p>,
-            });
-            setPost({
-                title: "",
-                slug: "",
-                categories: [],
-                tags: [],
-                image: ""
-            });
+
+            console.log(res.data);
+            // const MySwal = withReactContent(Swal);
+            // MySwal.fire({
+            //     title: <p>{res.data.message}</p>,
+            // });
+            // setPost({
+            //     title: "",
+            //     slug: "",
+            //     categories: [],
+            //     tags: [],
+            //     image: ""
+            // });
             setPosting(false);
-            setErrors({});
-            setUpdatedAt(Date.now());
+            // setErrors({});
+            // setUpdatedAt(Date.now());
         }).catch(err => {
             setPosting(false);
             setErrors({ ...err.response.data.errors });
@@ -151,7 +167,9 @@ const Editor = () => {
             <CNav variant="tabs" role="tablist">
                 {steps.map((step, index) => {
                     return (
-                        <CNavItem key={index}>
+                        <CNavItem
+                        //  key={`tab_${index}`}
+                        >
                             <CNavLink
                                 active={step.id == activeStep}
                                 onClick={() => setActiveStep(step.id)}
@@ -178,10 +196,12 @@ const Editor = () => {
                 <CRow>
                     <CCol md={8}>
                         <CTabContent>
+                            {JSON.stringify(post.tags)}<br /><br />
+                            {JSON.stringify(tags)}
                             {steps.map((step, index) => {
                                 return (
                                     <CTabPane
-                                        key={index}
+                                        // key={`pane_${index}`}
                                         role="tabpanel"
                                         aria-labelledby="contact-tab"
                                         visible={step.id == activeStep}
@@ -197,13 +217,12 @@ const Editor = () => {
                                         </CRow>
                                         <br />
                                         <CRow>
-
                                             <CKEditor
-                                                initData={steps.length}
-                                                // onInstanceReady={(e) => { // }}
+                                                initData={step.content}
+                                                // onInstanceReady={(e) => { console.log(e) }}
                                                 config={editorConfig}
                                                 editorUrl={editorConfig.editorUrl}
-                                                name={`content_of_${step.id}`}
+                                                name={`content_of_step_id_${step.id}`}
                                             />
                                         </CRow>  </CTabPane>
                                 );
@@ -234,7 +253,7 @@ const Editor = () => {
                             <CCardBody>
                                 <CheckboxTree
                                     nodes={categories.map(category => ({ value: category.id, label: category.name }))}
-                                    checked={post.categories}
+                                    checked={[...post.categories]}
                                     onCheck={(checked) => setPost({ ...post, categories: checked })}
                                     icons={{
                                         check: <CIcon icon={cilCheckCircle} />,
@@ -249,8 +268,9 @@ const Editor = () => {
                             <CCardBody>
                                 <CreatableSelect
                                     options={tags.map((tag) => ({ value: tag.id, label: tag.name }))}
-                                    value={post.tags}
-                                    onChange={(e) => setPost({ ...post, tags: e })}
+                                    value={post.tags.map((tag) => ({ value: tag.id, label: tag.name }))}
+                                    // onChange={(e) => setPost({ ...post, tags: e })}
+                                    onChange={(selected) => setPost({ ...post, tags: selected.map((tag) => ({ id: tag.value, name: tag.label })) })}
                                     isMulti
                                     isClearable={false}
                                     styles={{

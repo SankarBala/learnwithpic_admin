@@ -6,6 +6,8 @@ import {
   CTableRow, CFormCheck, CFormSelect, CButton, CInputGroup, CRow, CCol, CFormInput
 } from "@coreui/react";
 import api from "src/api";
+import CIcon from "@coreui/icons-react";
+import { cilTransfer } from "@coreui/icons";
 
 const Posts = () => {
 
@@ -74,6 +76,13 @@ const Posts = () => {
     }
     setUpdatedAt(new Date().getTime());
   }
+
+  const visitWithFilter = (e) => {
+    const { name, value } = e.target;
+    visit(`?${name}=${value}`);
+    setUpdatedAt(new Date().getTime());
+  }
+
 
 
   const genarateUrl = () => {
@@ -178,86 +187,118 @@ const Posts = () => {
           <CButton onClick={genarateUrl}>Filter</CButton>
         </CCol>
       </CRow>
-      <CTable bordered>
-        <CTableHead color="dark">
-          <CTableRow>
-            <CTableHeaderCell scope="col">
-              <CFormCheck
-                checked={postSelected.size == posts.length && posts.length >= 1}
-                disabled={posts.length < 1}
-                onChange={(e) => e.target.checked ? setPostSelected(new Set(posts.map(post => post.id))) : setPostSelected(new Set([]))}
-              />
-            </CTableHeaderCell>
-            <CTableHeaderCell scope="col">Title</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Author</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Categories</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Tags</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Engage</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-          </CTableRow>
-        </CTableHead>
-        <CTableBody>
-          {posts.map((post, index) => {
+      {posts.length > 0 ? (
+        <CTable bordered>
+          <CTableHead color="dark">
+            <CTableRow>
+              <CTableHeaderCell scope="col">
+                <CFormCheck
+                  checked={postSelected.size == posts.length && posts.length >= 1}
+                  disabled={posts.length < 1}
+                  onChange={(e) => e.target.checked ? setPostSelected(new Set(posts.map(post => post.id))) : setPostSelected(new Set([]))}
+                />
+              </CTableHeaderCell>
+              <CTableHeaderCell scope="col">Title</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Author</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Categories</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Tags</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Props</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Posted</CTableHeaderCell>
+            </CTableRow>
+          </CTableHead>
+          <CTableBody>
+            {posts.map((post, index) => {
+              return (
+                <CTableRow key={index}>
+                  <CTableHeaderCell scope="row">
+                    <CFormCheck
+                      checked={postSelected.has(post.id)}
+                      value={post.id}
+                      onChange={(e) => handlePostSelection(e)}
+                    />
+                  </CTableHeaderCell>
+                  <CTableDataCell>
+                    <div className="mb-2">{post.title}-{post.status}-{post.id}</div>
+                    <div>
+                      <CButton size="sm" color="link" className="text-primary text-decoration-none p-0 m-0"
+                        onClick={() => { visit("") }}
+                      >View</CButton>
+                      <span className="mx-2">|</span>
+                      <CButton size="sm" color="link" className="text-warning text-decoration-none p-0 m-0"
+                        onClick={() => { visit(`/post/edit/${post.slug}`) }}
+                      >Edit</CButton>
+                      <span className="mx-2">|</span>
+                      <CButton size="sm" color="link" className="text-danger text-decoration-none p-0 m-0"
+                        onClick={() => { deleteSinglePost(post.slug) }}
+                      >Delete</CButton>
+                    </div>
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    <CButton
+                      color="primary"
+                      variant="ghost"
+                      className="p-0 m-0 px-1"
+                      onClick={(e) => visitWithFilter(e)}
+                      name="author"
+                      value={post?.author?.id}
+                    >{post?.author?.name}
+                    </CButton>
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    {post?.categories.map((cat, index) => {
+                      return (<CButton
+                        key={index}
+                        color="primary"
+                        variant="ghost"
+                        className="p-0 m-0 px-1"
+                        onClick={(e) => visitWithFilter(e)}
+                        name="category"
+                        value={cat.slug}
+                      >{cat.name}</CButton>)
+                    })}
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    {post?.tags.map((tag, index) => {
+                      return (<CButton
+                        key={index}
+                        color="primary"
+                        variant="ghost"
+                        className="p-0 m-0 px-1"
+                        onClick={(e) => visitWithFilter(e)}
+                        name="tag"
+                        value={tag.slug}
+                      >{tag.name}</CButton>)
+                    })}
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    &#x1F441; {post.view_count} <br />
+                    &#x1F5E8; {post.comments.length}<br />
+                    <CIcon icon={cilTransfer} /> {post?.steps?.length}
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    {post.created_at}
+                  </CTableDataCell>
+                </CTableRow>
+              )
+            })}
+          </CTableBody>
+        </CTable>
+      ) : (
+        <div style={{ minHeight: "300px" }} class="d-flex align-items-center justify-content-center">
+          <div>No data found</div>
+        </div>
+      )}
+      {(pagination.total / pagination.perPage) > 1 &&
+        < CPagination align="end" aria-label="Page">
+          <CPaginationItem style={{ cursor: "pointer" }} disabled={pagination.page == 1} onClick={() => paginate(pagination.page - 1)}>Previous</CPaginationItem>
+          {[...Array(Math.ceil(pagination.total / pagination.perPage))].map((item, index) => {
             return (
-              <CTableRow key={index}>
-                <CTableHeaderCell scope="row">
-                  <CFormCheck
-                    checked={postSelected.has(post.id)}
-                    value={post.id}
-                    onChange={(e) => handlePostSelection(e)}
-                  />
-                </CTableHeaderCell>
-                <CTableDataCell>
-                  <div className="mb-2">{post.title}-{post.status}-{post.id}</div>
-                  <div>
-                    <CButton size="sm" color="link" className="text-primary text-decoration-none p-0 m-0"
-                      onClick={() => { visit("") }}
-                    >View</CButton>
-                    <span className="mx-2">|</span>
-                    <CButton size="sm" color="link" className="text-warning text-decoration-none p-0 m-0"
-                      onClick={() => { visit(`/post/edit/${post.slug}`) }}
-                    >Edit</CButton>
-                    <span className="mx-2">|</span>
-                    <CButton size="sm" color="link" className="text-danger text-decoration-none p-0 m-0"
-                      onClick={() => { deleteSinglePost(post.slug) }}
-                    >Delete</CButton>
-                  </div>
-                </CTableDataCell>
-                <CTableDataCell>
-                  <Link className="text-decoration-none" to="ss">{post.author.name}</Link>
-                </CTableDataCell>
-                <CTableDataCell>
-                  {post?.categories.map((cat) => {
-                    return <Link className="text-decoration-none" key={cat.id} to="/ff">{cat.name}</Link>
-                  })}
-                </CTableDataCell>
-                <CTableDataCell>
-                  {post?.tags.map((tag) => {
-                    return <Link key={tag.id} className="text-decoration-none" to="/ff">{tag.name}</Link>
-                  })}
-                </CTableDataCell>
-                <CTableDataCell>
-                  &#x1F441; {post.view_count} <br />
-                  &#x1F5E8; {post.comments.length}
-                </CTableDataCell>
-                <CTableDataCell>
-                  {post.created_at}
-                </CTableDataCell>
-              </CTableRow>
+              <CPaginationItem style={{ cursor: "pointer" }} key={index} active={pagination.page == index + 1} className="" onClick={() => paginate(index + 1)}>{index + 1}</CPaginationItem>
             )
           })}
-        </CTableBody>
-      </CTable>
-
-      <CPagination align="end" aria-label="Page">
-        <CPaginationItem style={{ cursor: "pointer" }} disabled={pagination.page == 1} onClick={() => paginate(pagination.page - 1)}>Previous</CPaginationItem>
-        {[...Array(Math.ceil(pagination.total / pagination.perPage))].map((item, index) => {
-          return (
-            <CPaginationItem style={{ cursor: "pointer" }} key={index} active={pagination.page == index + 1} className="" onClick={() => paginate(index + 1)}>{index + 1}</CPaginationItem>
-          )
-        })}
-        <CPaginationItem style={{ cursor: "pointer" }} disabled={pagination.page == (Math.ceil(pagination.total / pagination.perPage))} onClick={() => paginate(pagination.page + 1)}>Next</CPaginationItem>
-      </CPagination>
+          <CPaginationItem style={{ cursor: "pointer" }} disabled={pagination.page == (Math.ceil(pagination.total / pagination.perPage))} onClick={() => paginate(pagination.page + 1)}>Next</CPaginationItem>
+        </CPagination>
+      }
     </>
   )
 };
