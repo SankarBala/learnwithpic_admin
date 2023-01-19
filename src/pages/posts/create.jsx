@@ -19,6 +19,8 @@ import {
     cibAddthis,
     cilCheckCircle,
     cilCircle,
+    cilX,
+    cilXCircle,
 } from "@coreui/icons";
 import ReactImagePickerEditor from "react-image-picker-editor";
 import CreatableSelect from 'react-select/creatable';
@@ -31,7 +33,6 @@ import withReactContent from "sweetalert2-react-content";
 import { CKEditor } from 'ckeditor4-react';
 import editorConfig from "src/assets/ckeditor/standard/config";
 
-
 const Creator = () => {
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
@@ -43,10 +44,12 @@ const Creator = () => {
         image: ""
     });
     const [steps, setSteps] = useState([{ id: `step_id_${new Date().getTime()}`, title: "" }]);
-    const [activeStep, setActiveStep] = useState(steps[0].id);
+    // const [steps, setSteps] = useState([]);
+    const [activeStep, setActiveStep] = useState(steps[0]?.id);
     const [errors, setErrors] = useState({ title: "", slug: "" });
     const [updatedAt, setUpdatedAt] = useState();
     const [posting, setPosting] = useState(false);
+    const [mouseOverStep, setMouseOverStep] = useState(null);
 
     useEffect(() => {
         api.get(`category`).then(res => setCategories(res.data)).catch((err) => setErrors(err.response.data.errors));
@@ -55,13 +58,15 @@ const Creator = () => {
 
 
     const addNewStep = () => {
+        const newStepId = `step_id_${new Date().getTime()}`;
         setSteps([
             ...steps,
             {
-                id: `step_id_${new Date().getTime()}`,
+                id: newStepId,
                 title: ""
             },
         ]);
+        setActiveStep(newStepId);
     };
 
     const removeStep = (removableStep) => {
@@ -70,6 +75,7 @@ const Creator = () => {
                 return step.id !== removableStep;
             })
         );
+        removableStep == activeStep && setActiveStep(steps[0].id);
     };
 
 
@@ -152,13 +158,41 @@ const Creator = () => {
                 {steps.map((step, index) => {
                     return (
                         <CNavItem key={index}>
-                            <CNavLink
-                                active={step.id == activeStep}
-                                onClick={() => setActiveStep(step.id)}
-                                style={{ cursor: "pointer" }}
+                            <div
+                                style={{
+                                    position: "relative"
+                                }}
+                                onMouseEnter={() => { setMouseOverStep(step?.id) }}
+                                onMouseLeave={() => { setMouseOverStep(null) }}
                             >
-                                {`Step ${index + 1}`}
-                            </CNavLink>
+                                <CNavLink
+                                    active={step.id == activeStep}
+                                    onClick={() => setActiveStep(step?.id)}
+                                    style={{
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                     {`Step ${step?.id?.toString().slice(-2)}`}
+                                </CNavLink>
+                                <CIcon
+                                    icon={cilXCircle}
+                                    size="sm"
+                                    hidden={mouseOverStep !== step?.id}
+                                    style={{
+                                        color: "maroon",
+                                        margin: 0,
+                                        cursor: "pointer",
+                                        position: "absolute",
+                                        right: "1px",
+                                        top: "-5px",
+                                        padding: "0px",
+                                        height: "30px",
+                                        borderRadius: "100px"
+                                    }}
+                                    onClick={() => removeStep(step?.id)}
+
+                                />
+                            </div>
                         </CNavItem>
                     );
                 })}
@@ -199,7 +233,7 @@ const Creator = () => {
                                         <CRow>
 
                                             <CKEditor
-                                                initData={steps.length}
+                                                initData={""}
                                                 // onInstanceReady={(e) => { // }}
                                                 config={editorConfig}
                                                 editorUrl={editorConfig.editorUrl}
@@ -268,7 +302,7 @@ const Creator = () => {
             </CContainer>
 
             <CRow>
-                <CCol align="end" className="mb-2">
+                <CCol align="end" className="m-4">
                     <CButton color="primary" disabled={posting} onClick={savePost}>Save</CButton>
                 </CCol>
             </CRow>
@@ -278,14 +312,4 @@ const Creator = () => {
 
 export default Creator;
 
-//     .stepCloser {
-//     position: absolute;
-//     z-index: 9999;
-//     margin-top: -40px;
-//     margin-left: 60px;
-//     display: none;
-//   }
 
-//   .nav-item .stepCloser:hover {
-//     display: inline;
-//   }

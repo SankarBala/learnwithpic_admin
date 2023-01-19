@@ -19,6 +19,7 @@ import {
     cibAddthis,
     cilCheckCircle,
     cilCircle,
+    cilXCircle,
 } from "@coreui/icons";
 import ReactImagePickerEditor from "react-image-picker-editor";
 import CreatableSelect from 'react-select/creatable';
@@ -30,7 +31,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { CKEditor } from 'ckeditor4-react';
 import editorConfig from "src/assets/ckeditor/standard/config";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 
 const Editor = () => {
@@ -41,7 +42,8 @@ const Editor = () => {
         slug: "",
         categories: [],
         tags: [],
-        image: ""
+        image: "",
+        imageData: ""
     });
     // const [steps, setSteps] = useState([{ id: `step_id_${new Date().getTime()}`, title: "" }]);
     const [steps, setSteps] = useState([]);
@@ -49,7 +51,9 @@ const Editor = () => {
     const [errors, setErrors] = useState({ title: "", slug: "" });
     const [updatedAt, setUpdatedAt] = useState();
     const [posting, setPosting] = useState(false);
+    const [mouseOverStep, setMouseOverStep] = useState(null);
     const params = useParams();
+    const visit = useNavigate();
 
     useEffect(() => {
         api.get(`just-categories`).then(res => setCategories(res.data)).catch((err) => setErrors(err.response.data.errors));
@@ -62,20 +66,21 @@ const Editor = () => {
                 setPost({ ...post, ...res.data, categories: res.data.categories.map(cat => cat.id) });
                 setSteps([...res.data?.steps]);
                 setActiveStep(res.data?.steps[0]?.id);
-                console.log(res.data);
             }).catch(err => console.log(err));
     }, []);
 
 
 
     const addNewStep = () => {
+        const newStepId = `step_id_${new Date().getTime()}`;
         setSteps([
             ...steps,
             {
-                id: `step_id_${new Date().getTime()}`,
+                id: newStepId,
                 title: ""
             },
         ]);
+        setActiveStep(newStepId);
     };
 
     const removeStep = (removableStep) => {
@@ -84,8 +89,8 @@ const Editor = () => {
                 return step.id !== removableStep;
             })
         );
+        removableStep == activeStep && setActiveStep(steps[0].id);
     };
-
 
     const updatePost = (e) => {
 
@@ -95,32 +100,19 @@ const Editor = () => {
         if (post.slug == "") {
             setErrors({ ...errors, slug: "Slug field is requred" });
         }
-
         if (post.title == "" || post.slug == "") {
             return;
         }
 
         setPosting(true);
-        const postablesteps = steps.map(step => ({ title: step.title, content: CKEDITOR.instances[`content_of_step_id_${step.id}`].getData() }));
+        const postablesteps = steps.map(step => ({ id: step.id, title: step.title, content: CKEDITOR.instances[`content_of_step_id_${step.id}`].getData() }));
 
-        api.put(`post/${params.slug}`, { ...post, steps: postablesteps }).then(res => {
+        api.put(`post/${params.slug}`, { ...post, imageData: null, steps: postablesteps }).then(res => {
 
-
-            console.log(res.data);
-            // const MySwal = withReactContent(Swal);
-            // MySwal.fire({
-            //     title: <p>{res.data.message}</p>,
-            // });
-            // setPost({
-            //     title: "",
-            //     slug: "",
-            //     categories: [],
-            //     tags: [],
-            //     image: ""
-            // });
             setPosting(false);
-            // setErrors({});
-            // setUpdatedAt(Date.now());
+            setErrors({});
+            visit(`/post/edit/${post.slug}`);
+            setUpdatedAt(Date.now());
         }).catch(err => {
             setPosting(false);
             setErrors({ ...err.response.data.errors });
@@ -168,15 +160,44 @@ const Editor = () => {
                 {steps.map((step, index) => {
                     return (
                         <CNavItem
-                        //  key={`tab_${index}`}
+                            key={`tab_${index}`}
                         >
-                            <CNavLink
-                                active={step.id == activeStep}
-                                onClick={() => setActiveStep(step.id)}
-                                style={{ cursor: "pointer" }}
+                            <div
+                                style={{
+                                    position: "relative"
+                                }}
+                                onMouseEnter={() => { setMouseOverStep(step?.id) }}
+                                onMouseLeave={() => { setMouseOverStep(null) }}
                             >
-                                {`Step ${index + 1}`}
-                            </CNavLink>
+                                <CNavLink
+                                    active={step.id == activeStep}
+                                    onClick={() => setActiveStep(step?.id)}
+                                    style={{
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    {`Step ${step?.id?.toString().slice(-2)}`}
+                                </CNavLink>
+                                <CIcon
+                                    icon={cilXCircle}
+                                    size="sm"
+                                    hidden={mouseOverStep !== step?.id}
+                                    style={{
+                                        color: "maroon",
+                                        margin: 0,
+                                        cursor: "pointer",
+                                        position: "absolute",
+                                        right: "1px",
+                                        top: "-5px",
+                                        padding: "0px",
+                                        height: "30px",
+                                        borderRadius: "100px"
+                                    }}
+                                    onClick={() => removeStep(step?.id)}
+
+                                />
+                            </div>
+
                         </CNavItem>
                     );
                 })}
@@ -196,12 +217,11 @@ const Editor = () => {
                 <CRow>
                     <CCol md={8}>
                         <CTabContent>
-                            {JSON.stringify(post.tags)}<br /><br />
-                            {JSON.stringify(tags)}
+
                             {steps.map((step, index) => {
                                 return (
                                     <CTabPane
-                                        // key={`pane_${index}`}
+                                        key={`pane_${index}`}
                                         role="tabpanel"
                                         aria-labelledby="contact-tab"
                                         visible={step.id == activeStep}
@@ -224,7 +244,8 @@ const Editor = () => {
                                                 editorUrl={editorConfig.editorUrl}
                                                 name={`content_of_step_id_${step.id}`}
                                             />
-                                        </CRow>  </CTabPane>
+                                        </CRow>
+                                    </CTabPane>
                                 );
                             })}
                         </CTabContent>
@@ -242,8 +263,8 @@ const Editor = () => {
                                         objectFit: "fill",
                                         width: "100%",
                                     }}
-                                    imageSrcProp={post.image}
-                                    imageChanged={imgDataUrl => setPost({ ...post, image: imgDataUrl })}
+                                    imageSrcProp={post.imageData}
+                                    imageChanged={imgDataUrl => { setPost({ ...post, image: imgDataUrl, imageData: imgDataUrl }) }}
                                 />
                             </CCardBody>
                         </CCard>
@@ -288,7 +309,7 @@ const Editor = () => {
             </CContainer>
 
             <CRow>
-                <CCol align="end" className="mb-2">
+                <CCol align="end" className="m-4">
                     <CButton color="primary" disabled={posting} onClick={updatePost}>Update</CButton>
                 </CCol>
             </CRow>

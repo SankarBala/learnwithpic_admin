@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const Dashboard = React.lazy(() => import('./pages/dashboard/Index'))
 const Posts = React.lazy(() => import('./pages/posts/index'));
 const PostCreator = React.lazy(() => import('./pages/posts/create'));
 const PostEditor = React.lazy(() => import('./pages/posts/edit'));
@@ -11,8 +11,8 @@ const FileManager = React.lazy(()=>import('./pages/filemanager/FileManager'));
 
 
 const routes = [
-  { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  { path: '/', exact: true, name: 'Home', element: Dashboard },
+  // { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/post/', name: 'posts', element: Posts },
   { path: '/post/create', name: 'create', element: PostCreator },
   { path: '/post/edit/:slug', name: 'edit', element: PostEditor },

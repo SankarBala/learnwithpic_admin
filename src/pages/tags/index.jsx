@@ -23,7 +23,7 @@ const Tags = () => {
     api
       .get("tag")
       .then((res) => {
-        if (res.data.length > 0) {
+        if (res?.data?.length > 0) {
           setTags(res.data);
         } else {
           setTags([]);
@@ -120,7 +120,7 @@ const Tags = () => {
           return (
             <CCol className="" md={4} key={tag.id}>
               <CInputGroup className="my-1">
-                <CInputGroupText> {tag.posts.length} </CInputGroupText>
+                <CInputGroupText> {tag?.posts?.length} </CInputGroupText>
                 <CFormInput
                   defaultValue={tag.name}
                   disabled={editingTag.slug !== tag.slug}
@@ -160,7 +160,7 @@ const Tags = () => {
             </CCol>
           );
         })}
-        <CCol> {tags.length < 1 ? "No tag created yet." : ""}</CCol>
+        <CCol> {tags?.length < 1 ? "No tag created yet." : ""}</CCol>
       </CRow>
     </>
   );
